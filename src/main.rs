@@ -33,14 +33,14 @@ impl FlashAlgorithm for Algorithm {
         Err(ErrorCode::new(0x70d0).unwrap())
     }
 
-    fn erase_sector(&mut self, addr: u32) -> Result<(), ErrorCode> {
-        rprintln!("Erase sector addr:{}", addr);
+    fn erase_sector(&mut self, address: u32) -> Result<(), ErrorCode> {
+        rprintln!("Erase sector address:{}", address);
         // TODO: Add code here that erases a page to flash.
         Ok(())
     }
 
-    fn program_page(&mut self, addr: u32, data: &[u8]) -> Result<(), ErrorCode> {
-        rprintln!("Program Page addr:{} size:{}", addr, data.len());
+    fn program_page(&mut self, address: u32, size: u32, _data: *const u8) -> Result<(), ErrorCode> {
+        rprintln!("Program Page address:{} size:{}", address, size);
         // TODO: Add code here that writes a page to flash.
         Ok(())
     }
