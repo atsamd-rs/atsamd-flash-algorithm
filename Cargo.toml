@@ -7,7 +7,7 @@ version = "0.1.0"
 
 [dependencies]
 cortex-m = "0.7.0"
-rtt-target = { version = "0.3", features = ["cortex-m"] }
+rtt-target = { version = "0.3", features = ["cortex-m"], optional = true }
 
 [dependencies.atsamd-hal]
 git = "https://github.com/vccnfitingh/atsamd.git"
@@ -19,6 +19,9 @@ git = "https://github.com/probe-rs/flash-algorithm.git"
 rev = "0d68027422914da8193effb5b1507598d97afb7d"
 default-features = false
 features = ["panic-handler"]
+
+[features]
+log = ["rtt-target"]
 
 # this lets you use `cargo fix`!
 [[bin]]

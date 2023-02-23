@@ -8,7 +8,18 @@ use atsamd_hal::{
     pac,
 };
 use flash_algorithm::*;
-use rtt_target::{rprintln, rtt_init_print};
+
+#[cfg(not(feature = "log"))]
+macro_rules! rprintln {
+    ($($arg:tt)*) => {}
+}
+
+#[cfg(feature = "log")]
+macro_rules! rprintln {
+    ($($arg:tt)*) => {
+        rtt_target::rprintln!($($arg)*)
+    }
+}
 
 struct Algorithm {
     nvm: Nvm,
@@ -56,7 +67,8 @@ impl Algorithm {
 
 impl FlashAlgorithm for Algorithm {
     fn new(address: u32, clock: u32, function: Function) -> Result<Self, ErrorCode> {
-        rtt_init_print!();
+        #[cfg(feature = "log")]
+        rtt_target::rtt_init_print!();
         rprintln!("Init");
         Self::init(address, clock, function).map_err(|_| ErrorCode::new(1).unwrap())
     }
