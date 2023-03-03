@@ -47,7 +47,9 @@ impl Algorithm {
         let mut nvm = Nvm::new(device.NVMCTRL);
 
         if function != Function::Verify as _ {
-            nvm.boot_protection(false)?;
+            if cfg!(feature = "override-boot-loader-protection") {
+                nvm.boot_protection(false)?;
+            }
 
             // No HAL for region locks
             let regs = unsafe { nvm.registers() };

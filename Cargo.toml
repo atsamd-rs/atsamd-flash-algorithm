@@ -21,7 +21,9 @@ default-features = false
 features = ["panic-handler"]
 
 [features]
+default = ["override-boot-loader-protection"]
 log = ["rtt-target"]
+override-boot-loader-protection = []
 
 # this lets you use `cargo fix`!
 [[bin]]
