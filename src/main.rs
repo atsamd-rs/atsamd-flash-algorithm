@@ -11,7 +11,12 @@ use flash_algorithm::*;
 
 #[cfg(not(feature = "log"))]
 macro_rules! rprintln {
-    ($($arg:tt)*) => {}
+    ($($arg:tt)*) => {
+        {
+            let _ = ($($arg)*);
+            ()
+        }
+    }
 }
 
 #[cfg(feature = "log")]
@@ -38,32 +43,30 @@ algorithm!(Algorithm, {
 
 impl Algorithm {
     fn init(_address: u32, _clock: u32, function: Function) -> Result<Self, nvm::Error> {
+        // Safety: the only place `Peripherals` struct is accessed from
+        // Note: `pac::Peripherals::take` can be only called once whilst `Self::init` is
+        // called multiple times during the program lifetime. Thus it cannot be used.
         let device = unsafe { pac::Peripherals::steal() };
         const NVMCTRL_ID: u16 = 0x22;
         // Unlock NVMCTRL peripheral if it was locked
         // Safety: NVMCTRL_ID is a valid peripheral identifier
-        device.PAC.wrctrl
+        device
+            .PAC
+            .wrctrl
             .write(|w| unsafe { w.key().clr().perid().bits(NVMCTRL_ID) });
+
         let mut nvm = Nvm::new(device.NVMCTRL);
 
         if function != Function::Verify as _ {
             if cfg!(feature = "override-boot-loader-protection") {
+                rprintln!("Disable BOOTPROT");
                 nvm.boot_protection(false)?;
             }
 
-            // No HAL for region locks
-            let regs = unsafe { nvm.registers() };
-            const FLASH_START: u32 = 0;
-            const FLASH_END: u32 = 1024 * 1024;
-            const REGION_SIZE: usize = ((FLASH_END - FLASH_START) / 32) as usize;
-            for region_start in (FLASH_START..FLASH_END).step_by(REGION_SIZE) {
-                regs.addr.write(|w| unsafe { w.addr().bits(region_start) });
-                regs.ctrlb.write(|w| w.cmdex().key().cmd().ur());
-            }
+            rprintln!("Disable region lock");
+            nvm.region_lock(0xFFFF_FFFF)?;
         }
-        Ok(Self {
-            nvm,
-        })
+        Ok(Self { nvm })
     }
 }
 
@@ -72,14 +75,20 @@ impl FlashAlgorithm for Algorithm {
         #[cfg(feature = "log")]
         rtt_target::rtt_init_print!();
         rprintln!("Init");
-        Self::init(address, clock, function).map_err(|_| ErrorCode::new(1).unwrap())
+        Self::init(address, clock, function).map_err(|e| {
+            rprintln!("init failed: {:?}", e);
+            ErrorCode::new(1).unwrap()
+        })
     }
 
     fn erase_sector(&mut self, address: u32) -> Result<(), ErrorCode> {
         rprintln!("Erase sector address:{}", address);
-        // Safety: The flash programming algorithm is not meant to be loaded to flash, so the executing
-        // code will not be erased.
-        unsafe { self.nvm.erase_flash(address as *mut u32, 1) }.map_err(|_| ErrorCode::new(1).unwrap())
+        // Safety: The flash programming algorithm is not meant to be loaded to flash,
+        // so the executing code will not be erased.
+        unsafe { self.nvm.erase_flash(address as *mut u32, 1) }.map_err(|e| {
+            rprintln!("erase_sector failed: {:?}", e);
+            ErrorCode::new(1).unwrap()
+        })
     }
 
     fn program_page(&mut self, address: u32, data: &[u8]) -> Result<(), ErrorCode> {
@@ -94,7 +103,11 @@ impl FlashAlgorithm for Algorithm {
                 size_words,
                 WriteGranularity::Page,
             )
-        }.map_err(|_| ErrorCode::new(1).unwrap())
+        }
+        .map_err(|e| {
+            rprintln!("program_page failed: {:?}", e);
+            ErrorCode::new(1).unwrap()
+        })
     }
 }
 
