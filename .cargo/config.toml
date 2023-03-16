@@ -17,7 +17,11 @@ rustflags = [
   "-C",
   "force-frame-pointers=no",
 ]
-runner = "target-gen test template.yaml target/definition.yaml"
+
+# Use the gen-yaml runner to only generate the target description, or change to `target-gen test`
+# to additionally run some tests on target.
+runner = "./gen-yaml.sh"
+#runner = "target-gen test template.yaml target/definition.yaml"
 
 [build]
 target = "thumbv7em-none-eabihf"

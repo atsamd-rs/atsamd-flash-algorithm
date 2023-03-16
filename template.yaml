@@ -1,6 +1,6 @@
-name: algorithm-test
+name: SAME51-rs
 variants:
-  - name: algorithm-test
+  - name: algorithm-test # ATSAME51N20A-rs
     cores:
       - name: main
         type: armv7em
@@ -24,10 +24,10 @@ variants:
           cores:
             - main
     flash_algorithms:
-      - algorithm-test
+      - algorithm-test # atsamd-flash-algorithm
 flash_algorithms:
-  - name: algorithm-test
-    description: A flash algorithm under test
+  - name: algorithm-test # atsamd-flash-algorithm
+    description: Flash algorithm for samd51 and same5x using atsamd-hal
     cores:
       - main
     default: true
