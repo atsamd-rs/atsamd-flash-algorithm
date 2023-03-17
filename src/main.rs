@@ -14,7 +14,6 @@ macro_rules! rprintln {
     ($($arg:tt)*) => {
         {
             let _ = ($($arg)*);
-            ()
         }
     }
 }
