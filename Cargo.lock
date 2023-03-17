@@ -27,7 +27,7 @@ dependencies = [
 [[package]]
 name = "atsamd-hal"
 version = "0.15.1"
-source = "git+https://github.com/vccnfitingh/atsamd.git?branch=nvm#e02bdd1f8161ce3b152d05b4fc220c58893c7fa3"
+source = "git+https://github.com/vccnfitingh/atsamd.git?branch=nvm#21b2972e4ab6f43e19373f24607b64f437c6bbe6"
 dependencies = [
  "aes",
  "atsame51n",
@@ -51,7 +51,7 @@ dependencies = [
 [[package]]
 name = "atsame51n"
 version = "0.12.0"
-source = "git+https://github.com/vccnfitingh/atsamd.git?branch=nvm#e02bdd1f8161ce3b152d05b4fc220c58893c7fa3"
+source = "git+https://github.com/vccnfitingh/atsamd.git?branch=nvm#21b2972e4ab6f43e19373f24607b64f437c6bbe6"
 dependencies = [
  "cortex-m",
  "vcell",
