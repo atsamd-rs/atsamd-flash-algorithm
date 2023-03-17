@@ -24,7 +24,9 @@ jobs:
       uses: Swatinem/rust-cache@v2.2.0
     - name: Install Dependencies
       run: |
-        cargo install cargo-binutils
+        sudo apt update
+        sudo apt install libudev-dev
+        cargo install cargo-binutils target-gen
         rustup component add llvm-tools-preview clippy rustfmt
     - name: Check
       run: cargo check
@@ -32,3 +34,9 @@ jobs:
       run: cargo clippy
     - name: Format
       run: cargo fmt
+    - name: Generate target description
+      run: cargo run --release
+    - uses: actions/upload-artifact@v3
+      with:
+        name: flash-algorithms
+        path: target/definition.yaml
